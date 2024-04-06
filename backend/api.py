@@ -1,6 +1,5 @@
 from flask import Flask, request
 
-UPLOAD_FOLDER = '/path/to/the/uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 PORT = 8502
