@@ -14,6 +14,7 @@ def allowed_img(filename):
 
 @app.route('/process_image', methods=['POST', 'GET'])
 def process_image():
+     
      if request.method == 'GET':
         #заглушка
         model_res = {
