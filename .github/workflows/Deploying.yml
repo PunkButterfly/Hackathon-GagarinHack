@@ -1,0 +1,34 @@
+name: ComposingDeploying
+on:
+  push:
+    branches:
+      - main
+jobs:
+  BuildingAttempt:
+    name: Trying to docker compose
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: 'x64'
+      - name: Trying to docker compose
+        run: docker compose up --build -d
+  DeployingVM:
+    name: Deploying to VM
+    runs-on: ubuntu-latest
+    needs: BuildingAttempt
+    steps:
+      - name: Deploying to VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.PUNKER_USERNAME }}
+          key: ${{ secrets.PUNKER_SSH_KEY_PRIVATE }}
+          passphrase: ${{ secrets.PUNKER_PASSPHRASE }}
+          script: |
+            cd ${{ github.event.repository.name }}
+            git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
+            sudo docker compose down 
+            sudo docker compose up --build -d
