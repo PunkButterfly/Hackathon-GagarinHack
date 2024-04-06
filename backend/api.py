@@ -14,7 +14,7 @@ def allowed_img(filename):
 
 @app.route('/', methods=['POST', 'GET'])
 def root():
-    return "ya lublu sobask"
+    return "ya lublu koshek"
 
 @app.route('/process_image', methods=['POST', 'GET'])
 def process_image():
