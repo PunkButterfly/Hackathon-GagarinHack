@@ -21,6 +21,7 @@ def process_image():
             "image_classes_probs": {'one': 0.33, 'two': 0.33, 'three': 0.33},
             "image_content": {'page_number': 1, 'other_content': 'ya lublu sobak'}
         }
+        
         return model_res
      
      if request.method == 'POST':
