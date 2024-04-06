@@ -12,6 +12,10 @@ def save_to_db(db=None, image=None, proceed_res= None):
 def allowed_img(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+@app.route('/', methods=['POST', 'GET'])
+def root():
+    return "ya lublu sobask"
+
 @app.route('/process_image', methods=['POST', 'GET'])
 def process_image():
      
