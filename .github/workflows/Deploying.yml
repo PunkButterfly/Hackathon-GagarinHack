@@ -21,7 +21,7 @@ jobs:
     needs: BuildingAttempt
     steps:
       - name: Deploying to VM
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.PUNKER_USERNAME }}
