@@ -38,7 +38,7 @@ def process_image():
             return {'msg': 'image extension is not allowed'} 
         
         # model_res = ...
-        #test
+
         return model_res
 
 if __name__ == '__main__':
