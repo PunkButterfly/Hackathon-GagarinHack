@@ -39,6 +39,7 @@ def process_image():
         
         # model_res = ...
 
+        
         return model_res
 
 if __name__ == '__main__':
