@@ -14,7 +14,7 @@ def allowed_img(filename):
 
 @app.route('/', methods=['POST', 'GET'])
 def root():
-    return "ya lublu sobask"
+    return "Саша, мне вообще-то обидно, когда не доверяют моим данным."
 
 @app.route('/process_image', methods=['POST', 'GET'])
 def process_image():
@@ -39,7 +39,6 @@ def process_image():
         
         # model_res = ...
 
-        
         return model_res
 
 if __name__ == '__main__':
