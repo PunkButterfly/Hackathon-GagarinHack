@@ -26,6 +26,5 @@ def process_image():
             "image_content": {'page_number': 1, 'other_content': 'ya lublu sobak'}
         }
         return model_res
-
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=PORT)
