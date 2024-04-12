@@ -4,7 +4,7 @@ import streamlit as st
 # Внутрення сеть докер композа
 # st.write(rq.get("http://backend:8502/").text)
 
-URL = "http://localhost:8502"
+URL = "http://backend:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
 
