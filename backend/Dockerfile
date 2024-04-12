@@ -1,7 +1,7 @@
 FROM python:3.12
-WORKDIR /container
+WORKDIR /backend
 
-COPY . /container/
+COPY . /backend/
 
 RUN pip install -r requirements.txt
 
