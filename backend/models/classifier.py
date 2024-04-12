@@ -27,10 +27,10 @@ class TorchClassifier:
 
         self.model_class.idx_to_class
 
-        result = [
-            (self.model_class.idx_to_class[i], predict[i])
+        result = {
+            self.model_class.idx_to_class[i]: predict[i]
             for i in range(len(predict))
-        ]
+        }
         return result
 
 class ModelV1:
