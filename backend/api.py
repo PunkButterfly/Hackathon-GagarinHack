@@ -11,8 +11,8 @@ import yaml
 
 from models.classifier import TorchClassifier
 
-workdir = './backend/'
-# workdir = '' # for docker 
+# workdir = './backend/'
+workdir = '' # for docker 
 
 # with open(f'{workdir}CH_CONFIG.yaml', 'r')  as f:
 #     config = yaml.safe_load(f)
