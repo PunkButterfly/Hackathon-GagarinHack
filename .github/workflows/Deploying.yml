@@ -4,21 +4,21 @@ on:
     branches:
       - main
 jobs:
-  BuildingAttempt:
-    name: Trying to docker compose
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          architecture: 'x64'
-      - name: Trying to docker compose
-        run: docker compose up --build -d
+  # BuildingAttempt:
+  #   name: Trying to docker compose
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.12'
+  #         architecture: 'x64'
+  #     - name: Trying to docker compose
+  #       run: docker compose up --build -d
   DeployingVM:
     name: Deploying to VM
     runs-on: ubuntu-latest
-    needs: BuildingAttempt
+    # needs: BuildingAttempt
     steps:
       - name: Deploying to VM
         uses: appleboy/ssh-action@master
