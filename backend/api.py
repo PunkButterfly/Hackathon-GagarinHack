@@ -48,8 +48,6 @@ async def process_image(file: UploadFile):
             binary_data = await file.read()  # async read
             await out_file.write(binary_data)  #
 
-        # return {"filename": file.filename}
-
         client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
 
         s_bin = str(binary_data)[2:-1]
