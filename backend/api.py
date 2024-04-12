@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Request
 import uvicorn
 import os
 
@@ -65,16 +65,34 @@ async def process_image(file: UploadFile):
         model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
 
         img_result = model.process_img(out_file_path)
-        print(img_result)
 
         return img_result
 
-        #заглушка
-        model_res = {
-            "image_classes_probs": {'one': 0.33, 'two': 0.33, 'three': 0.33},
-            "image_content": {'page_number': 1, 'other_content': 'ya lublu sobak'}
-        }
-        return model_res
+
+# @app.post("/process_image/")
+# async def process_image(file: UploadFile = File(...)):
+
+#     # return {"filename": file.filename}
+#     if not file_data:
+#         return {"message": "No upload file sent"}
+#     elif not allowed_img(file_name):
+#         return {"message": "Not allowed file extension"}
+#     else:
+#         out_file_name = f'tmp_{datetime.now()}_' + file_name
+#         out_file_path = os.path.join(TMP_DIR, out_file_name)
+
+#         async with  aiofiles.open(out_file_path, 'wb') as out_file:
+#             binary_data = file_data 
+#             await out_file.write(binary_data)  #
+
+#         # save_to_db(binary_data, file)
+
+#         model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
+
+#         img_result = model.process_img(out_file_path)
+#         print(img_result)
+
+#         return img_result
         
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=PORT)
