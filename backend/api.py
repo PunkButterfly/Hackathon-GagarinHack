@@ -11,16 +11,16 @@ import yaml
 
 from models.classifier import TorchClassifier
 
-# workdir = './backend/'
-workdir = '' # for docker 
+workdir = './backend/'
+# workdir = '' # for docker 
 
-with open(f'{workdir}CH_CONFIG.yaml', 'r')  as f:
-    config = yaml.safe_load(f)
+# with open(f'{workdir}CH_CONFIG.yaml', 'r')  as f:
+#     config = yaml.safe_load(f)
 
-CH_HOST = config['HOST']
-CH_PORT = config['PORT']
-CH_USERNAME = config['USER']
-CH_PASSWORD = config['PASSWORD']
+# CH_HOST = config['HOST']
+# CH_PORT = config['PORT']
+# CH_USERNAME = config['USER']
+# CH_PASSWORD = config['PASSWORD']
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 TMP_DIR = f'{workdir}tmp_files/'
@@ -29,12 +29,12 @@ PORT = 8502
 
 app = FastAPI()
 
-def save_to_db(binary_data, file):
-    client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
+# def save_to_db(binary_data, file):
+#     client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
 
-    s_bin = str(binary_data)[2:-1]
+#     s_bin = str(binary_data)[2:-1]
 
-    client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
+#     client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
 
 def allowed_img(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -59,7 +59,7 @@ async def process_image(file: UploadFile):
 
         # save_to_db(binary_data, file)
 
-        model = TorchClassifier(f'{workdir}models/weights/v1_weights.pt')
+        model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
 
         img_result = model.process_img(out_file_path)
         print(img_result)
