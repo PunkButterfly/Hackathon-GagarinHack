@@ -9,6 +9,8 @@ import clickhouse_connect
 
 import yaml
 
+from utils import *
+
 from models.classifier import TorchClassifier
 
 # workdir = './backend/'
@@ -22,7 +24,6 @@ workdir = '' # for docker
 # CH_USERNAME = config['USER']
 # CH_PASSWORD = config['PASSWORD']
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 TMP_DIR = f'{workdir}tmp_files/'
 
 if not os.path.exists(TMP_DIR):
@@ -38,9 +39,6 @@ app = FastAPI()
 #     s_bin = str(binary_data)[2:-1]
 
 #     client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
-
-def allowed_img(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
     
 @app.get("/")
 def root():
@@ -62,11 +60,45 @@ async def process_image(file: UploadFile):
 
         # save_to_db(binary_data, file)
 
-        model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
+        model = TorchClassifier(f'{workdir}models/weights/v3_weights.pt')
 
         img_result = model.process_img(out_file_path)
 
         return img_result
+    
+
+@app.post("/detect/")
+async def process_image(file: UploadFile):
+    if not file:
+        return {"message": "No upload file sent"}
+    elif not allowed_img(file.filename):
+        return {"message": "Not allowed file extension"}
+    else:
+        out_file_name = f'tmp_{datetime.now()}_' + file.filename
+        out_file_path = os.path.join(TMP_DIR, out_file_name)
+
+        async with  aiofiles.open(out_file_path, 'wb') as out_file:
+            binary_data = await file.read()  # async read
+            await out_file.write(binary_data)  #
+
+        # save_to_db(binary_data, file)
+
+        model = TorchClassifier(f'{workdir}models/weights/v3_weights.pt')
+
+        img_result = model.process_img(out_file_path)
+
+        parsed_result = parse_res(img_result)
+
+        formatted_result = {
+            "type": parsed_result[1][0],
+            "confidence": parsed_result[0],
+            "series": '1488',
+            "number": '228 228',    
+            "page_number": parsed_result[1][1]
+        }
+
+        return formatted_result
+
 
 
 # @app.post("/process_image/")

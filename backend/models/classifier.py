@@ -14,7 +14,7 @@ class TorchClassifier:
     def __init__(self, path_to_weights, device = 'cpu'):
         self.device = device
 
-        self.model_class = ModelV2()
+        self.model_class = ModelV3()
         self.model = self.model_class.model
 
         self.model.load_state_dict(torch.load(path_to_weights, map_location=torch.device('cpu')))
@@ -27,7 +27,7 @@ class TorchClassifier:
 
 
         predict = self.model(transformed_img.to(self.device).unsqueeze(0))
-        parsed_predict = soft_max(predict).cpu().detach().numpy().tolist()[0]
+        parsed_predict = predict.cpu().detach().numpy().tolist()[0]
         print(predict)
         self.model_class.idx_to_class
 
@@ -88,3 +88,29 @@ class EmbedNet(nn.Module):
             x = self.fc2(F.normalize(x))
             x = self.fc3(F.normalize(x))
             return F.normalize(x)
+        
+
+class ModelV3:
+    def __init__(self):
+
+        out_dim = 7
+
+        encoder = resnet18(pretrained=True)
+        model = EmbedNet(encoder, out_dim)
+
+        self.model = model
+
+        self.transform = transforms.Compose([
+            transforms.Resize((224, 224)),  # Размер изображения
+            transforms.ToTensor()  # Преобразование в тензор
+        ])
+        
+        self.idx_to_class = {
+            0: 'Drivers',
+            1: 'Drivers-2',
+            2: 'PTS',
+            3: 'Passports',
+            4: 'Passports-2',
+            5: 'STS',
+            6: 'STS-2'
+            }
