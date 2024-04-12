@@ -11,7 +11,10 @@ import yaml
 
 from models.classifier import TorchClassifier
 
-with open('./backend/CH_CONFIG.yaml', 'r')  as f:
+# workdir = './backend/'
+workdir = '' # for docker 
+
+with open(f'{workdir}CH_CONFIG.yaml', 'r')  as f:
     config = yaml.safe_load(f)
 
 CH_HOST = config['HOST']
@@ -20,7 +23,7 @@ CH_USERNAME = config['USER']
 CH_PASSWORD = config['PASSWORD']
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-TMP_DIR = './backend/tmp_files/'
+TMP_DIR = f'{workdir}tmp_files/'
 
 PORT = 8502
 
@@ -56,7 +59,7 @@ async def process_image(file: UploadFile):
 
         # save_to_db(binary_data, file)
 
-        model = TorchClassifier('./backend/models/weights/v1_weights.pt')
+        model = TorchClassifier(f'{workdir}models/weights/v1_weights.pt')
 
         img_result = model.process_img(out_file_path)
         print(img_result)
