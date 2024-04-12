@@ -25,6 +25,9 @@ workdir = '' # for docker
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 TMP_DIR = f'{workdir}tmp_files/'
 
+if not os.path.exists(TMP_DIR):
+    os.mkdir(TMP_DIR)
+
 PORT = 8502
 
 app = FastAPI()
