@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - backend
 jobs:
   BuildingAttempt:
     name: Trying to docker compose

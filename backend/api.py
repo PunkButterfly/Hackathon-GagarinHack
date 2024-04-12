@@ -9,6 +9,8 @@ import clickhouse_connect
 
 import yaml
 
+from models.classifier import TorchClassifier
+
 with open('./backend/CH_CONFIG.yaml', 'r')  as f:
     config = yaml.safe_load(f)
 
@@ -24,8 +26,12 @@ PORT = 8502
 
 app = FastAPI()
 
-def save_to_db(db=None, image=None, proceed_res= None):
-    pass
+def save_to_db(binary_data, file):
+    client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
+
+    s_bin = str(binary_data)[2:-1]
+
+    client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
 
 def allowed_img(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -48,13 +54,14 @@ async def process_image(file: UploadFile):
             binary_data = await file.read()  # async read
             await out_file.write(binary_data)  #
 
-        client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
+        # save_to_db(binary_data, file)
 
-        s_bin = str(binary_data)[2:-1]
+        model = TorchClassifier('./backend/models/weights/v1_weights.pt')
 
-        print(
-            client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
-        )
+        img_result = model.process_img(out_file_path)
+        print(img_result)
+
+        return img_result
 
         #заглушка
         model_res = {
