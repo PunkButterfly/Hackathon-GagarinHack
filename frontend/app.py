@@ -8,6 +8,7 @@ import shutil
 # st.write(rq.get("http://backend:8502/").text)
 
 URL = "http://backend:8502"
+# URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
 
@@ -43,8 +44,13 @@ with proceed_img:
 
 with response_body:
     if uploaded_file:
-        st.write(response)
+        st.write(f"Тип документа (type): {response['type']}")
+        st.write(f"Уверенность в предсказании (confidence): {response['confidence']}")
+        st.write(f"Серия документа (series): {response['series']}")
+        st.write(f"Номер страницы (page_number): {response['page_number']}")
+        st.write(f"Номер документа (number): {response['number']}")
 
+        st.write(f"Распознанный текст: {response['recognited_text']}")
 
 
 
