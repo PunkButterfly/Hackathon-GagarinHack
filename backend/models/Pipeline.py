@@ -30,6 +30,7 @@ class Pipeline:
 
         return recognited_text, img_path
 
+
 def image_crop(image, coords):
     cropped_image = image.crop((coords[0], coords[1], coords[2], coords[3]))
     rotated_image = cropped_image.transpose(Image.ROTATE_90) if (coords[2] - coords[0]) < (coords[3] - coords[1]) else cropped_image
