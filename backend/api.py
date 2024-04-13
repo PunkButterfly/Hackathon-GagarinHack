@@ -1,13 +1,12 @@
 from fastapi import FastAPI, File, UploadFile, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 import uvicorn
 import os
-
+import io
 import aiofiles
 from datetime import datetime
 
-import clickhouse_connect
-import yaml
+from PIL import Image
 
 from utils import *
 from models.Pipeline import Pipeline
@@ -50,15 +49,42 @@ async def process_image(file: bytes = File(...)):
 
         save_to_db(binary_img_data, img_file_path)
 
-        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
-    
+        response = format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
+
+        predict_img = Image.open(predict_img_path)
+        bytes_image = io.BytesIO()
+
+        predict_img.save(bytes_image, format='PNG')
+        
+        return Response(content=bytes_image.getvalue(), headers=response, media_type="image/png")
+
+@app.post("/detect_punk_client_flattened_dataset/")
+async def process_image(file: bytes = File(...)):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+       
+        img_file_path, binary_img_data = await save_image(file)
+
+        pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR, classifier_weights_name = 'weights_71_0.94_0.93_0.93_0.93.pt')
+
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
+
+        save_to_db(binary_img_data, img_file_path)
+
+        response = format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
+
+        predict_img = Image.open(predict_img_path)
+        bytes_image = io.BytesIO()
+
+        predict_img.save(bytes_image, format='PNG')
+        
+        return Response(content=bytes_image.getvalue(), headers=response, media_type="image/png")
 
 @app.post("/detect/")
 async def process_image(file: bytes = File(...)):
     if not file:
         return {"message": "No upload file sent"}
-    elif not allowed_img(file.filename):
-        return {"message": "Not allowed file extension"}
     else:
     
         img_file_path, binary_img_data = await save_image(file)
@@ -67,7 +93,14 @@ async def process_image(file: bytes = File(...)):
 
         save_to_db(binary_img_data, img_file_path)
 
-        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path)
+        response = format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path)
+
+        predict_img = Image.open(predict_img_path)
+        bytes_image = io.BytesIO()
+
+        predict_img.save(bytes_image, format='PNG')
+        
+        return Response(content=bytes_image.getvalue(), headers=response, media_type="image/png")
     
 @app.post("/get_image_by_path/")
 async def process_image(img_path: str):
