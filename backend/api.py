@@ -102,6 +102,20 @@ async def process_image(file: bytes = File(...)):
         
         return Response(content=bytes_image.getvalue(), headers=response, media_type="image/png")
     
+@app.post("/detect_for_mobile/")
+async def process_image(file: bytes = File(...)):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+    
+        img_file_path, binary_img_data = await save_image(file)
+
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
+
+        save_to_db(binary_img_data, img_file_path)
+        
+        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
+    
 @app.post("/get_image_by_path/")
 async def process_image(img_path: str):
     return FileResponse(img_path)
