@@ -9,3 +9,6 @@ torch==2.2.0
 torchvision==0.17.0
 Pillow==9.4.0
 PyYAML==6.0.1
+transformers==4.39.3
+ultralytics==8.1.47
+# numpy==1.26.4
