@@ -4,6 +4,9 @@ from fastapi import UploadFile
 import requests as rq
 import streamlit as st
 
+import shutil
+
+
 # Внутрення сеть докер композа
 # st.write(rq.get("http://backend:8502/").text)
 
@@ -16,9 +19,38 @@ uploaded_file = st.file_uploader('Скан документа', accept_multiple_
 # uploaded_file_bytes = open(uploaded_file, 'rb')
 # uploaded_file_name = uploaded_file.name
 
-response = rq.post(f"{URL}/detect/", files={"file": uploaded_file}).json()
-# #
-st.write(response)
+response = None
+
+if uploaded_file:
+    response = rq.post(f"{URL}/detect/", files={"file": uploaded_file}).json()
+
+if response:
+    features_response = response["proceed_image_name"]
+
+    img_response = rq.post(f"{URL}/get_image_by_path/", params={"img_path": features_response})
+
+    proceed_img_path = features_response.split('/')[-1]
+    if img_response.status_code == 200:
+        with open(features_response.split('/')[-1], 'wb') as out_file:
+            out_file.write(img_response.content)
+
+image, proceed_img, response_body = st.columns(3, gap='small')
+
+with image:
+    if uploaded_file:
+        st.image(uploaded_file, caption="Загруженный снимок документа")
+
+with proceed_img:
+    if uploaded_file:
+        st.image(proceed_img_path, caption="Выделенные данные на снимке")
+
+with response_body:
+    if uploaded_file:
+        st.write(response)
+
+
+
+
 
 
 

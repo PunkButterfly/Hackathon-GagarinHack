@@ -1,19 +1,25 @@
 from datetime import datetime as dt
 
-from Detector import Detector
-from Recogniter import Recogniter
+from models.Detector import Detector
+from models.Recogniter import Recogniter
 
 from PIL import Image
 
 
 class Pipeline:
-    def __init__(self):
-        self.detector = Detector()
+    def __init__(self, path_to_weights, path_to_tmp, detector_weights_name: str = 'detector.pt'):
+        self.detector = Detector(path_to_weights, path_to_tmp, weights_name=detector_weights_name)
         self.recognitor = Recogniter()
 
     def forward(self, path_to_image: str):
         image = Image.open(path_to_image, 'r').convert("RGB")
-        features_coordinates = self.detector.predict([path_to_image])[0]
+
+        print(path_to_image)
+
+        predict_result = self.detector.predict([path_to_image])[0]
+
+        features_coordinates = predict_result['coords']
+        img_path = predict_result['predict_img_path']
 
         recognited_text = []
         for coords in features_coordinates:
@@ -22,12 +28,4 @@ class Pipeline:
 
             recognited_text.append(text)
 
-        return recognited_text
-
-init_start = dt.now()
-pipeline = Pipeline()
-print(pipeline.forward("dl.jpeg"))
-print(f"init time: {dt.now() - init_start}")
-start = dt.now()
-print(pipeline.forward("dl.jpeg"))
-print(f"iter: {dt.now() - start}")
+        return recognited_text, img_path
