@@ -20,13 +20,17 @@ class Pipeline:
 
         features_coordinates = predict_result['coords']
         img_path = predict_result['predict_img_path']
+        names = predict_result['names_data']
+
+        print("names_data", names)
+        print("features_coordinates", features_coordinates)
 
         recognited_text = []
-        for coords in features_coordinates:
+        for name, coords in zip(names, features_coordinates):
             cropped_image = image_crop(image, coords)
             text = self.recognitor.predict(cropped_image)
 
-            recognited_text.append(text)
+            recognited_text.append((text, name))
 
         return recognited_text, img_path
     
