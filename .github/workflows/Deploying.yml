@@ -27,6 +27,7 @@ jobs:
           username: ${{ secrets.PUNKER_USERNAME }}
           key: ${{ secrets.PUNKER_SSH_KEY_PRIVATE }}
           passphrase: ${{ secrets.PUNKER_PASSPHRASE }}
+          command_timeout: 30m
           script: |
             cd ${{ github.event.repository.name }}
             git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
