@@ -1,44 +1,99 @@
-from flask import Flask, request
+from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.responses import FileResponse
+import uvicorn
+import os
 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
+import aiofiles
+from datetime import datetime
+
+import clickhouse_connect
+
+import yaml
+
+from utils import *
+
+from models.classifier import TorchClassifier
+from models.Pipeline import Pipeline
+
+# workdir = './backend/'
+workdir = '' # for docker 
 
 PORT = 8502
 
-app = Flask(__name__)
+TMP_DIR = f'{workdir}tmp_files/'
+WEIGHTS_DIR = f'{workdir}models/weights/'
 
-def save_to_db(db=None, image=None, proceed_res= None):
-    pass
+app = FastAPI()
 
-def allowed_img(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@app.route('/', methods=['POST', 'GET'])
+classifier_model = TorchClassifier(f'{WEIGHTS_DIR}v3_weights.pt')
+pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR)
+ 
+@app.get("/")
 def root():
-    return "ya lublu sobask"
+    return "Саша, мне вообще-то обидно, когда не доверяют моим данным."
 
-@app.route('/process_image', methods=['POST', 'GET'])
-def process_image():
-     
-     if request.method == 'GET':
-        #заглушка
-        model_res = {
-            "image_classes_probs": {'one': 0.33, 'two': 0.33, 'three': 0.33},
-            "image_content": {'page_number': 1, 'other_content': 'ya lublu sobak'}
+@app.post("/process_image/")
+async def process_image(file: UploadFile):
+    if not file:
+        return {"message": "No upload file sent"}
+    elif not allowed_img(file.filename):
+        return {"message": "Not allowed file extension"}
+    else:
+        out_file_name = f'tmp_{datetime.now()}_' + file.filename
+        out_file_path = os.path.join(TMP_DIR, out_file_name)
+
+        async with  aiofiles.open(out_file_path, 'wb') as out_file:
+            binary_data = await file.read()  # async read
+            await out_file.write(binary_data) 
+
+        # save_to_db(binary_data, file)
+
+        img_result = classifier_model.process_img(out_file_path)
+
+        return img_result
+    
+
+@app.post("/detect/")
+async def process_image(file: UploadFile):
+    if not file:
+        return {"message": "No upload file sent"}
+    elif not allowed_img(file.filename):
+        return {"message": "Not allowed file extension"}
+    else:
+        out_file_name = f'tmp_{datetime.now()}_' + file.filename
+        out_file_path = os.path.join(TMP_DIR, out_file_name)
+
+        async with  aiofiles.open(out_file_path, 'wb') as out_file:
+            binary_data = await file.read()  # async read
+            await out_file.write(binary_data)  
+
+        # save_to_db(binary_data, file)
+
+        img_result = classifier_model.process_img(out_file_path)
+
+        parsed_result = parse_res(img_result)
+
+        text, img_path = pipeline.forward(out_file_path)
+        print(text, img_path)
+
+        formatted_result = {
+            "type": parsed_result[1][0],
+            "confidence": parsed_result[0],
+            "series": '1331',
+            "number": '111 111',    
+            "page_number": parsed_result[1][1],
+            "proceed_image_name": img_path,
+            "recognited_text": text
         }
 
-        return model_res
-     
-     if request.method == 'POST':
-        if 'image' not in request.files:
-            return {'msg': 'no image'}
+        return formatted_result
+    
+@app.post("/get_image_by_path/")
+async def process_image(img_path: str):
+    return FileResponse(img_path)
         
-        image = request.files['image']
-
-        if image not in allowed_img(image) :
-            return {'msg': 'image extension is not allowed'} 
-        
-        # model_res = ...
-
-        return model_res
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=PORT)
+    if not os.path.exists(TMP_DIR):
+        os.mkdir(TMP_DIR)
+
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
