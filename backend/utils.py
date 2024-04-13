@@ -60,10 +60,10 @@ def format_response_detect_client_prod(classifier_probs, recognited_text, predic
 
     response = {
         "type": parsed_cls_result[1][0],
-        "confidence": parsed_cls_result[0],
+        "confidence": str(parsed_cls_result[0]),
         "series": ser,
         "number": numb,    
-        "page_number": parsed_cls_result[1][1]
+        "page_number": str(parsed_cls_result[1][1])
     }
 
     if type == 'punk_client':
