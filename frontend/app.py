@@ -23,7 +23,7 @@ uploaded_file = st.file_uploader('Скан документа', accept_multiple_
 response = None
 
 if uploaded_file:
-    response = rq.post(f"{URL}/detect/", files={"file": uploaded_file}).json()
+    response = rq.post(f"{URL}/detect_punk_client/", files={"file": uploaded_file.read()}).json()
 
 if response:
     features_response = response["proceed_image_name"]

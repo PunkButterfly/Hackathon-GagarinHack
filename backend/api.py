@@ -7,12 +7,9 @@ import aiofiles
 from datetime import datetime
 
 import clickhouse_connect
-
 import yaml
 
 from utils import *
-
-from models.classifier import TorchClassifier
 from models.Pipeline import Pipeline
 
 # workdir = './backend/'
@@ -25,78 +22,52 @@ WEIGHTS_DIR = f'{workdir}models/weights/'
 
 app = FastAPI()
 
-classifier_model = TorchClassifier(f'{WEIGHTS_DIR}v3_weights.pt')
 pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR)
  
 @app.get("/")
 def root():
-    return "Саша, мне вообще-то обидно, когда не доверяют моим данным."
+    return "Avialiable"
 
-@app.post("/process_image/")
-async def process_image(file: UploadFile):
+async def save_image(file_binary):
+    img_file_name = f'tmp_{datetime.now()}_.jpg'
+    img_file_path = os.path.join(TMP_DIR, img_file_name)
+
+    async with aiofiles.open(img_file_path, 'wb') as out_file:
+        await out_file.write(file_binary) 
+
+    return img_file_path, file_binary
+    
+
+@app.post("/detect_punk_client/")
+async def process_image(file: bytes = File(...)):
     if not file:
         return {"message": "No upload file sent"}
-    elif not allowed_img(file.filename):
-        return {"message": "Not allowed file extension"}
     else:
-        out_file_name = f'tmp_{datetime.now()}_' + file.filename
-        out_file_path = os.path.join(TMP_DIR, out_file_name)
+       
+        img_file_path, binary_img_data = await save_image(file)
 
-        async with  aiofiles.open(out_file_path, 'wb') as out_file:
-            binary_data = await file.read()  # async read
-            await out_file.write(binary_data) 
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
 
-        # save_to_db(binary_data, file)
+        save_to_db(binary_img_data, img_file_path)
 
-        img_result = classifier_model.process_img(out_file_path)
-
-        return img_result
+        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
     
 
 @app.post("/detect/")
-async def process_image(file: UploadFile):
+async def process_image(file: bytes = File(...)):
     if not file:
         return {"message": "No upload file sent"}
     elif not allowed_img(file.filename):
         return {"message": "Not allowed file extension"}
     else:
-        out_file_name = f'tmp_{datetime.now()}_' + file.filename
-        out_file_path = os.path.join(TMP_DIR, out_file_name)
+    
+        img_file_path, binary_img_data = await save_image(file)
 
-        async with  aiofiles.open(out_file_path, 'wb') as out_file:
-            binary_data = await file.read()  # async read
-            await out_file.write(binary_data)  
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
 
-        # save_to_db(binary_data, file)
+        save_to_db(binary_img_data, img_file_path)
 
-        img_result = classifier_model.process_img(out_file_path)
-
-        parsed_result = parse_res(img_result)
-
-        content, img_path = pipeline.forward(out_file_path)
-        print(content, img_path)
-
-        ser = '1337'
-        numb = '111111'
-
-        for field_text, field_name in content:
-            if "ser" in field_name:
-                ser = field_text
-
-            if "num" in field_name:
-                numb = field_text
-
-        formatted_result = {
-            "type": parsed_result[1][0],
-            "confidence": parsed_result[0],
-            "series": ser,
-            "number": numb,    
-            "page_number": parsed_result[1][1],
-            "proceed_image_name": img_path,
-            "recognited_text": content
-        }
-
-        return formatted_result
+        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path)
     
 @app.post("/get_image_by_path/")
 async def process_image(img_path: str):
