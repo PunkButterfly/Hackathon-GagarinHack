@@ -82,7 +82,8 @@ async def process_image(file: UploadFile):
             "series": '1331',
             "number": '111 111',    
             "page_number": parsed_result[1][1],
-            "proceed_image_name": img_path
+            "proceed_image_name": img_path,
+            "recognited_text": text
         }
 
         return formatted_result
@@ -92,7 +93,7 @@ async def process_image(img_path: str):
     return FileResponse(img_path)
         
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
-
     if not os.path.exists(TMP_DIR):
         os.mkdir(TMP_DIR)
+
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
