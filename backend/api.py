@@ -73,17 +73,27 @@ async def process_image(file: UploadFile):
 
         parsed_result = parse_res(img_result)
 
-        text, img_path = pipeline.forward(out_file_path)
-        print(text, img_path)
+        content, img_path = pipeline.forward(out_file_path)
+        print(content, img_path)
+
+        ser = '1337'
+        numb = '111111'
+
+        for field_text, field_name in content:
+            if "ser" in field_name:
+                ser = field_text
+
+            if "num" in field_name:
+                numb = field_text
 
         formatted_result = {
             "type": parsed_result[1][0],
             "confidence": parsed_result[0],
-            "series": '1331',
-            "number": '111 111',    
+            "series": ser,
+            "number": numb,    
             "page_number": parsed_result[1][1],
             "proceed_image_name": img_path,
-            "recognited_text": text
+            "recognited_text": content
         }
 
         return formatted_result

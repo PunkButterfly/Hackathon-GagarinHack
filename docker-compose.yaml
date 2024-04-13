@@ -3,6 +3,7 @@ services:
   frontend:
     container_name: frontend
     build: frontend/
+    image: punker/hack_gagaring-backend
     ports:
       - "8501:8501"
     networks:
@@ -10,6 +11,7 @@ services:
   backend:
     container_name: backend
     build: backend/
+    image: punker/hack_gagaring-frontend
     ports:
       - "8502:8502"
     networks:
