@@ -1,8 +1,5 @@
 name: ComposingDeploying
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 jobs:
   # BuildingAttempt:
   #   name: Trying to docker compose
