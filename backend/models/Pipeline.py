@@ -14,11 +14,12 @@ class Pipeline:
             path_to_weights,
             path_to_tmp,
             detector_weights_name: str = 'detector.pt',
-            classifier_weights_name: str = 'v3_weights.pt'
+            classifier_weights_name: str = 'v3_weights.pt',
+            aligment_wetghts_name: str = "alignmentor.pt"
         ):
         self.detector = Detector(path_to_weights, path_to_tmp, weights_name=detector_weights_name)
         self.recognitor = Recognitor()
-        self.aligmentor = Alignmentor(path_to_tmp)
+        self.aligmentor = Alignmentor(path_to_weights, path_to_tmp, weights_name=aligment_wetghts_name)
         self.classifier_model = Classifier(path_to_weights, weights_name=classifier_weights_name )
 
     def forward(self, path_to_image: str):

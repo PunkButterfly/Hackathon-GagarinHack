@@ -6,24 +6,24 @@ import cv2
 
 
 class Alignmentor:
-    def __init__(self, data_dir_path):
+    def __init__(self, path_to_weights, data_dir_path, weights_name):
         self.data_dir_path = data_dir_path
 
-        self.model = YOLO('models/weights/alignmentor.pt')
+        self.model = YOLO(os.path.join(path_to_weights, weights_name))
 
     def align(self, img_file):
         print("Alingment...")
 
-        result = self.model([os.path.join(self.data_dir_path, img_file)], task="detection")[0]  # return a list of Results objects
+        result = self.model([img_file], task="detection")[0]  # return a list of Results objects
         boxes = result.boxes
         if len(boxes) >= 2:
             boxes = boxes[boxes.conf > 0.85]
         if boxes.xyxy.numel() == 0:
-            return Image.open(os.path.join(self.data_dir_path, img_file))
+            return Image.open(img_file)
 
         x1, y1, x2, y2 = union_boxes(boxes.xyxy)
 
-        im = Image.open(os.path.join(self.data_dir_path, img_file))
+        im = Image.open(img_file)
         # left, upper, right, and lower
         # y1 -> y2
         im1 = im.crop((x1, y1, x2, y2))
@@ -46,7 +46,7 @@ class Alignmentor:
 
         pil_image = Image.fromarray(color_converted)
 
-        pil_image.save(os.path.join(self.data_dir_path, img_file))
+        pil_image.save(img_file)
 
         return pil_image
 
