@@ -1,7 +1,8 @@
 from datetime import datetime as dt
 
 from models.Detector import Detector
-from models.Recogniter import Recogniter
+from models.Recognitor import Recognitor
+from models.Alignmentor import Alignmentor
 from models.classifier import Classifier
 
 from PIL import Image
@@ -13,16 +14,20 @@ class Pipeline:
             path_to_weights,
             path_to_tmp,
             detector_weights_name: str = 'detector.pt',
-            classifier_weights_name: str = 'v3_weights.pt'
+            classifier_weights_name: str = 'v3_weights.pt',
+            aligment_wetghts_name: str = "alignmentor.pt"
         ):
         self.detector = Detector(path_to_weights, path_to_tmp, weights_name=detector_weights_name)
-        self.recognitor = Recogniter()
+        self.recognitor = Recognitor()
+        self.aligmentor = Alignmentor(path_to_weights, path_to_tmp, weights_name=aligment_wetghts_name)
         self.classifier_model = Classifier(path_to_weights, weights_name=classifier_weights_name )
 
     def forward(self, path_to_image: str):
-        image = Image.open(path_to_image, 'r').convert("RGB")
+        # image = Image.open(path_to_image, 'r').convert("RGB")
 
-        classifier_probs = self.classifier_model.process_img(image)
+        alignment_image = self.aligmentor.align(path_to_image)
+
+        classifier_probs = self.classifier_model.process_img(alignment_image)
 
         content_predict_result = self.detector.predict([path_to_image])[0]
 
@@ -33,7 +38,7 @@ class Pipeline:
 
         recognited_text = []
         for name, conf, coords in zip(names, confs, features_coordinates):
-            cropped_image = image_crop(image, coords)
+            cropped_image = image_crop(alignment_image, coords)
             text = self.recognitor.predict(cropped_image)
 
             recognited_text.append((text, name, conf))

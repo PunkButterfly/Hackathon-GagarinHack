@@ -9,6 +9,7 @@ class Detector:
         self.tmp_path = path_to_tmp
 
     def predict(self, paths_to_images: list):
+        print("Detection...")
         outputs = self.model(paths_to_images)
 
         output = outputs[0] # можно так делать потому что всегоа загружаем только одно изображение
