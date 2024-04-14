@@ -1,30 +1,29 @@
 import requests as rq
 import streamlit as st
-
 from datetime import datetime
 
-import shutil
-
-
-# Внутрення сеть докер композа
-# st.write(rq.get("http://backend:8502/").text)
 
 URL = "http://backend:8502"
 # URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
-# st.markdown("""
-#     <style>
-#     [data-testid="stHeader"] {
-#       background-color: #4B39EE; 
-#       text-color: #FDFDFF;
-#     }
+
+st.markdown("""
+    <style>
+    [data-testid="stHeader"] {
+      background-color: #020e42;
+      color: white;
+    }
     
-#     [data-testid="stAppViewContainer"] {
-#       background: linear-gradient(to bottom, #4B39EE, #7D36EE); 
-#     }
-#     </style>
-# """, unsafe_allow_html=True)
+    [data-testid="stAppViewContainer"] {
+      background: linear-gradient(to bottom, #020e42, #262730);
+      color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("Punk Butterfly - Gagarin Hack 2024", anchor=False)
+st.header("")
 
 uploaded_file = st.file_uploader('Скан документа', accept_multiple_files=False)
 
@@ -81,5 +80,5 @@ try:
 
         print(request_to_db)
 except:
-    print("отправка на дб не удалсь")
+    print("отправка на дб не удалfсь")
 
