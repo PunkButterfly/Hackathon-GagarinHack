@@ -50,25 +50,22 @@ try:
     if headers is not None and source_img is not None and image_bin is not None:
         db_request = {
             "ipv4": "0.0.0.0",
-            "time": curr_time,
+            "time": str(curr_time),
 
-            # "source_img_bindata": source_img,
-            "source_img_bindata": "TEST",
+            "source_img_bindata": str(source_img),
             "source_img_filename": f"{curr_time}.png",
 
-            # "proceed_img_bindata": img_response.content,
-            "proceed_img_bindata": "TEST",
+            "proceed_img_bindata": str(image_bin),
             "proceed_img_filename": f"proceed_{curr_time}.png",
 
-            "recog_type": response['type'],
-            "confidence": response['confidence'],
-            "series": response['series'],
-            "number":  response['number'],
-            "page_number": response['page_number'],
-            "recog_text": response['recognited_text']
+            "recog_type": headers['type'],
+            "confidence": headers['confidence'],
+            "series": headers['series'],
+            "number":  headers['number'],
+            "page_number": headers['page_number'],
         }
 
-        request_to_db = rq.post(f"http://158.160.17.229:8503/log/", data=db_request)
+        request_to_db = rq.post(f"http://localhost:8503/log", json=db_request)
 
         print(request_to_db)
 except:
