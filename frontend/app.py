@@ -65,7 +65,7 @@ try:
             "page_number": headers['page_number'],
         }
 
-        request_to_db = rq.post(f"http://localhost:8503/log", json=db_request)
+        request_to_db = rq.post(f"http://158.160.17.229:8503/log", json=db_request)
 
         print(request_to_db)
 except:
