@@ -13,7 +13,7 @@ from utils import *
 from models.Pipeline import Pipeline
 
 # workdir = './backend/'
-workdir = '' # for docker 
+workdir = '' # for docker
 
 PORT = 8502
 
@@ -28,9 +28,12 @@ pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR)
 def root():
     return "Avialiable"
 
+
 async def save_image(file_binary):
     img_file_name = f'tmp_{datetime.now()}_.jpg'
     img_file_path = os.path.join(TMP_DIR, img_file_name)
+
+    print(img_file_path)
 
     async with aiofiles.open(img_file_path, 'wb') as out_file:
         await out_file.write(file_binary) 
