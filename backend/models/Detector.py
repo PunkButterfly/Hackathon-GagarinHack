@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 class Detector:
-    def __init__(self, path_to_weights: str, path_to_tmp: str, weights_name: str = 'detector.pt', confidence_level: float = 0.25):
+    def __init__(self, path_to_weights: str, path_to_tmp: str, weights_name: str = 'detectorv2.pt', confidence_level: float = 0.25):
         self.model = YOLO(os.path.join(path_to_weights, weights_name))
         self.model.conf = confidence_level
         self.tmp_path = path_to_tmp
