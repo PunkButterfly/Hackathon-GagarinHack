@@ -13,17 +13,18 @@ URL = "http://backend:8502"
 # URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
-st.markdown("""
-    <style>
-    [data-testid="stHeader"] {
-      background-color: #4B39EE; 
-    }
+# st.markdown("""
+#     <style>
+#     [data-testid="stHeader"] {
+#       background-color: #4B39EE; 
+#       text-color: #FDFDFF;
+#     }
     
-    [data-testid="stAppViewContainer"] {
-      background: linear-gradient(to bottom, #4B39EE, #7D36EE); 
-    }
-    </style>
-""", unsafe_allow_html=True)
+#     [data-testid="stAppViewContainer"] {
+#       background: linear-gradient(to bottom, #4B39EE, #7D36EE); 
+#     }
+#     </style>
+# """, unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader('Скан документа', accept_multiple_files=False)
 
