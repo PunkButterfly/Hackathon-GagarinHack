@@ -10,12 +10,12 @@ st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
 st.markdown("""
     <style>
     [data-testid="stHeader"] {
-      background-color: #262730;
+      background-color: #020e42;
       color: white;
     }
     
     [data-testid="stAppViewContainer"] {
-      background: linear-gradient(to bottom, #2b218a, #1f1440);
+      background: linear-gradient(to bottom, #020e42, #262730);
       color: white;
     }
     </style>
