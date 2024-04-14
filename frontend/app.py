@@ -1,24 +1,73 @@
-import io
-import json
-from fastapi import UploadFile
 import requests as rq
 import streamlit as st
+
+from datetime import datetime
+
+import shutil
+
 
 # Внутрення сеть докер композа
 # st.write(rq.get("http://backend:8502/").text)
 
-URL = "http://localhost:8502"
+URL = "http://backend:8502"
+# URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
 
 uploaded_file = st.file_uploader('Скан документа', accept_multiple_files=False)
-# print(uploaded_file.read())
-# uploaded_file_bytes = open(uploaded_file, 'rb')
-# uploaded_file_name = uploaded_file.name
 
-response = rq.post(f"{URL}/process_image/", files={"file": uploaded_file}).json()
-# #
-st.write(response)
+response = None
 
+if uploaded_file:
+    source_img = uploaded_file.read()
+    response = rq.post(f"{URL}/detect/", files={"file": source_img})
 
+if response:
+    image_bin = response.content
+    headers = response.headers
+    
+
+image, proceed_img, response_body = st.columns(3, gap='small')
+
+with image:
+    if uploaded_file:
+        st.image(uploaded_file, caption="Загруженный снимок документа")
+
+with proceed_img:
+    if uploaded_file:
+        st.image(image_bin, caption="Выделенные данные на снимке")
+
+with response_body:
+    if uploaded_file:
+        st.write(f"Тип документа (type): {headers['type']}")
+        st.write(f"Уверенность в предсказании (confidence): {headers['confidence']}")
+        st.write(f"Номер документа (number): {headers['number']}")
+        st.write(f"Серия документа (series): {headers['series']}")
+        st.write(f"Номер страницы (page_number): {headers['page_number']}")
+
+curr_time = datetime.now()
+try:
+    if headers is not None and source_img is not None and image_bin is not None:
+        db_request = {
+            "ipv4": "0.0.0.0",
+            "time": str(curr_time),
+
+            "source_img_bindata": str(source_img),
+            "source_img_filename": f"{curr_time}.png",
+
+            "proceed_img_bindata": str(image_bin),
+            "proceed_img_filename": f"proceed_{curr_time}.png",
+
+            "recog_type": headers['type'],
+            "confidence": headers['confidence'],
+            "series": headers['series'],
+            "number":  headers['number'],
+            "page_number": headers['page_number'],
+        }
+
+        request_to_db = rq.post(f"http://localhost:8503/log", json=db_request)
+
+        print(request_to_db)
+except:
+    print("отправка на дб не удалсь")
 

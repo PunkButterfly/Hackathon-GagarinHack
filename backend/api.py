@@ -1,98 +1,89 @@
 from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.responses import FileResponse, Response
 import uvicorn
 import os
-
+import io
 import aiofiles
 from datetime import datetime
 
-import clickhouse_connect
+from PIL import Image
 
-import yaml
-
-from models.classifier import TorchClassifier
+from utils import *
+from models.Pipeline import Pipeline
 
 # workdir = './backend/'
-workdir = '' # for docker 
-
-# with open(f'{workdir}CH_CONFIG.yaml', 'r')  as f:
-#     config = yaml.safe_load(f)
-
-# CH_HOST = config['HOST']
-# CH_PORT = config['PORT']
-# CH_USERNAME = config['USER']
-# CH_PASSWORD = config['PASSWORD']
-
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-TMP_DIR = f'{workdir}tmp_files/'
-
-if not os.path.exists(TMP_DIR):
-    os.mkdir(TMP_DIR)
+workdir = '' # for docker
 
 PORT = 8502
 
+TMP_DIR = f'{workdir}tmp_files/'
+WEIGHTS_DIR = f'{workdir}models/weights/'
+
 app = FastAPI()
 
-# def save_to_db(binary_data, file):
-#     client = clickhouse_connect.get_client(host=CH_HOST, port=CH_PORT, username=CH_USERNAME, password=CH_PASSWORD)
-
-#     s_bin = str(binary_data)[2:-1]
-
-#     client.command("INSERT INTO GagarinHack2024.queries (bindata, filename) VALUES ('{}', '{}')".format(s_bin, file.filename))
-
-def allowed_img(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-    
+pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR)
+ 
 @app.get("/")
 def root():
-    return "Саша, мне вообще-то обидно, когда не доверяют моим данным."
+    return "Avialiable"
 
-@app.post("/process_image/")
-async def process_image(file: UploadFile):
+
+async def save_image(file_binary):
+    img_file_name = f'tmp_{datetime.now()}_.jpg'
+    img_file_path = os.path.join(TMP_DIR, img_file_name)
+
+    print(img_file_path)
+
+    async with aiofiles.open(img_file_path, 'wb') as out_file:
+        await out_file.write(file_binary) 
+
+    return img_file_path, file_binary
+
+
+@app.post("/detect/")
+async def process_image(file: bytes = File(...)):
     if not file:
         return {"message": "No upload file sent"}
-    elif not allowed_img(file.filename):
-        return {"message": "Not allowed file extension"}
     else:
-        out_file_name = f'tmp_{datetime.now()}_' + file.filename
-        out_file_path = os.path.join(TMP_DIR, out_file_name)
+    
+        img_file_path, binary_img_data = await save_image(file)
 
-        async with  aiofiles.open(out_file_path, 'wb') as out_file:
-            binary_data = await file.read()  # async read
-            await out_file.write(binary_data)  #
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
 
-        # save_to_db(binary_data, file)
+        save_to_db(binary_img_data, img_file_path)
 
-        model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
+        # pipeline = Pipeline(WEIGHTS_DIR, TMP_DIR, classifier_weights_name = 'weights_71_0.94_0.93_0.93_0.93.pt')
+        # если хотим заюзать веса большого датасета
 
-        img_result = model.process_img(out_file_path)
+        response = format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path)
 
-        return img_result
+        predict_img = Image.open(predict_img_path)
+        bytes_image = io.BytesIO()
 
+        predict_img.save(bytes_image, format='PNG')
+        
+        return Response(content=bytes_image.getvalue(), headers=response, media_type="image/png")
+    
+@app.post("/detect_for_mobile/")
+async def process_image(file: bytes = File(...)):
+    if not file:
+        return {"message": "No upload file sent"}
+    else:
+    
+        img_file_path, binary_img_data = await save_image(file)
 
-# @app.post("/process_image/")
-# async def process_image(file: UploadFile = File(...)):
+        classifier_probs, recognited_text, predict_img_path = pipeline.forward(img_file_path)
 
-#     # return {"filename": file.filename}
-#     if not file_data:
-#         return {"message": "No upload file sent"}
-#     elif not allowed_img(file_name):
-#         return {"message": "Not allowed file extension"}
-#     else:
-#         out_file_name = f'tmp_{datetime.now()}_' + file_name
-#         out_file_path = os.path.join(TMP_DIR, out_file_name)
-
-#         async with  aiofiles.open(out_file_path, 'wb') as out_file:
-#             binary_data = file_data 
-#             await out_file.write(binary_data)  #
-
-#         # save_to_db(binary_data, file)
-
-#         model = TorchClassifier(f'{workdir}models/weights/v2_weights.pt')
-
-#         img_result = model.process_img(out_file_path)
-#         print(img_result)
-
-#         return img_result
+        save_to_db(binary_img_data, img_file_path)
+        
+        return format_response_detect_client_prod(classifier_probs, recognited_text, predict_img_path, type='punk_client')
+    
+@app.get("/get_image_by_path/")
+async def process_image(img_path: str):
+    return FileResponse(img_path)
         
 if __name__ == '__main__':
+    if not os.path.exists(TMP_DIR):
+        os.mkdir(TMP_DIR)
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)
