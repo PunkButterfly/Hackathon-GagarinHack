@@ -1,6 +1,3 @@
-import io
-import json
-from fastapi import UploadFile
 import requests as rq
 import streamlit as st
 
