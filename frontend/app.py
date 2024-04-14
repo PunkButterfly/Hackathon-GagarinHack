@@ -13,6 +13,17 @@ URL = "http://backend:8502"
 # URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
+st.markdown("""
+    <style>
+    [data-testid="stHeader"] {
+      background-color: #4B39EE; 
+    }
+    
+    [data-testid="stAppViewContainer"] {
+      background: linear-gradient(to bottom, #4B39EE, #7D36EE); 
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader('Скан документа', accept_multiple_files=False)
 
@@ -65,7 +76,7 @@ try:
             "page_number": headers['page_number'],
         }
 
-        request_to_db = rq.post(f"http://localhost:8503/log", json=db_request)
+        request_to_db = rq.post(f"http://158.160.17.229:8503/log", json=db_request)
 
         print(request_to_db)
 except:
