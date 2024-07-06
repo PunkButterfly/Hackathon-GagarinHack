@@ -1,20 +1,28 @@
-version: '3.8'
 services:
-  frontend:
-    container_name: frontend
-    build: frontend/
-    image: punker/hack_gagaring-backend
-    ports:
-      - "8501:8501"
-    networks:
-      - network
   backend:
-    container_name: backend
-    build: backend/
-    image: punker/hack_gagaring-frontend
+    environment:
+      BACKEND_PORT: "${BACKEND_PORT}"
+      FRONTEND_PORT: "${FRONTEND_PORT}"
+    container_name: ${BACKEND_CONTAINER_NAME}
+    build:
+      context: backend/
     ports:
-      - "8502:8502"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
     networks:
       - network
-networks:
-  network:
+  frontend:
+    environment:
+      BACKEND_PORT: "${BACKEND_PORT}"
+      FRONTEND_PORT: "${FRONTEND_PORT}"
+    container_name: ${FRONTEND_CONTAINER_NAME}
+    build:
+      context: frontend/
+      args:
+        FRONTEND_PORT: ${FRONTEND_PORT}
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - network
