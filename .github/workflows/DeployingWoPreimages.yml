@@ -1,4 +1,4 @@
-name: Deploying to Production
+name: Deploying wo Preimages
 on: workflow_dispatch
 env:
   COMPOSE_NAME: hackathon-gagarin2024
