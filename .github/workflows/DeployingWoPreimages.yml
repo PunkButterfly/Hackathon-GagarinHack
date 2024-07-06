@@ -1,0 +1,38 @@
+name: Deploying to Production
+on: workflow_dispatch
+env:
+  COMPOSE_NAME: hackathon-gagarin2024
+
+  BACKEND_CONTAINER_NAME: ${{ COMPOSE_NAME }}-backend
+  BACKEND_PORT: 0001
+
+  FRONTEND_CONTAINER_NAME: ${{ COMPOSE_NAME }}-frontend
+  FRONTEND_PORT: 0002
+jobs:
+  DeployingVM:
+    name: Deploying to VM
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Deploying to VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.PUNKER_USERNAME }}
+          key: ${{ secrets.PUNKER_SSH_KEY_PRIVATE }}
+          passphrase: ${{ secrets.PUNKER_PASSPHRASE }}
+          command_timeout: 30m
+          script: |
+            cd ${{ github.event.repository.name }}/production
+            git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main
+            
+            rm .env
+            echo BACKEND_CONTAINER_NAME=${{ env.BACKEND_CONTAINER_NAME }} >> .env
+            echo BACKEND_PORT=${{ env.BACKEND_PORT }} >> .env
+            
+            echo FRONTEND_CONTAINER_NAME=${{ env.FRONTEND_CONTAINER_NAME }} >> .env
+            echo FRONTEND_PORT=${{ env.FRONTEND_PORT }} >> .env
+            
+            sudo docker compose down            
+            sudo docker compose up --build -d -p 
+            echo y | sudo docker image prune -a

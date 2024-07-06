@@ -14,7 +14,7 @@ from models.Pipeline import Pipeline
 # workdir = './backend/'
 workdir = '' # for docker
 
-PORT = 8502
+PORT = os.getenv('BACKEND_PORT')
 
 TMP_DIR = f'{workdir}tmp_files/'
 WEIGHTS_DIR = f'{workdir}models/weights/'
