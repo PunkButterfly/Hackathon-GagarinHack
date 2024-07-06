@@ -33,6 +33,6 @@ jobs:
             echo FRONTEND_CONTAINER_NAME=${{ env.FRONTEND_CONTAINER_NAME }} >> .env
             echo FRONTEND_PORT=${{ env.FRONTEND_PORT }} >> .env
             
-            sudo docker compose down            
-            sudo docker compose up --build -d -p ${{ env.DOCKER_COMPOSE_NAME }}
+            sudo docker compose -p ${{ env.DOCKER_COMPOSE_NAME }} down            
+            sudo docker compose -p ${{ env.DOCKER_COMPOSE_NAME }} up --build -d
             echo y | sudo docker image prune -a
