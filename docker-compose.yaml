@@ -26,3 +26,5 @@ services:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     networks:
       - network
+networks:
+  network:
