@@ -4,10 +4,10 @@ env:
   DOCKER_COMPOSE_NAME: hackathon-gagarin2024
 
   BACKEND_CONTAINER_NAME: hackathon-gagarin2024-backend
-  BACKEND_PORT: 0001
+  BACKEND_PORT: 0002
 
   FRONTEND_CONTAINER_NAME: hackathon-gagarin2024-frontend
-  FRONTEND_PORT: 0002
+  FRONTEND_PORT: 0001
 jobs:
   DeployingVM:
     name: Deploying to VM
