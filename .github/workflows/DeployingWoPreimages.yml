@@ -23,10 +23,10 @@ jobs:
             git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main
             
             rm .env
-            echo BACKEND_CONTAINER_NAME=${{ env.DOCKER_COMPOSE_NAME }}-${{ env.BACKEND_CONTAINER_NAME }} >> .env
+            echo BACKEND_CONTAINER_NAME=${{ env.DOCKER_COMPOSE_NAME }}-backend >> .env
             echo BACKEND_PORT=${{ env.BACKEND_PORT }} >> .env
             
-            echo FRONTEND_CONTAINER_NAME=${{ env.DOCKER_COMPOSE_NAME }}-${{ env.FRONTEND_CONTAINER_NAME }} >> .env
+            echo FRONTEND_CONTAINER_NAME=${{ env.DOCKER_COMPOSE_NAME }}-frontend >> .env
             echo FRONTEND_PORT=${{ env.FRONTEND_PORT }} >> .env
             
             sudo docker compose -p ${{ env.DOCKER_COMPOSE_NAME }} down            
