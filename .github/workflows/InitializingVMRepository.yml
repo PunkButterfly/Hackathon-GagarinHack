@@ -1,0 +1,29 @@
+name: Initializing VM repository
+on: workflow_dispatch
+jobs:
+  InitializingVMRepository:
+    name: Initializing repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Initializing repository
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.PUNKER_USERNAME }}
+          key: ${{ secrets.PUNKER_SSH_KEY_PRIVATE }}
+          passphrase: ${{ secrets.PUNKER_PASSPHRASE }}
+          command_timeout: 30m
+          script: |
+            mkdir ${{ github.event.repository.name }}/production
+            
+            cd ${{ github.event.repository.name }}/production
+            git init
+            git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main:main
+            
+            mkdir ${{ github.event.repository.name }}/staging
+            cd ${{ github.event.repository.name }}/staging
+            git init
+            git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main:staging
+            git checkout staging
+            git push origin staging
