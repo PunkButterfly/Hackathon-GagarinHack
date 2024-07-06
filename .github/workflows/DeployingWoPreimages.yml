@@ -3,10 +3,10 @@ on: workflow_dispatch
 env:
   COMPOSE_NAME: hackathon-gagarin2024
 
-  BACKEND_CONTAINER_NAME: ${{ COMPOSE_NAME }}-backend
+  BACKEND_CONTAINER_NAME: hackathon-gagarin2024-backend
   BACKEND_PORT: 0001
 
-  FRONTEND_CONTAINER_NAME: ${{ COMPOSE_NAME }}-frontend
+  FRONTEND_CONTAINER_NAME: hackathon-gagarin2024-frontend
   FRONTEND_PORT: 0002
 jobs:
   DeployingVM:
@@ -34,5 +34,5 @@ jobs:
             echo FRONTEND_PORT=${{ env.FRONTEND_PORT }} >> .env
             
             sudo docker compose down            
-            sudo docker compose up --build -d -p 
+            sudo docker compose up --build -d -p ${{ COMPOSE_NAME }}
             echo y | sudo docker image prune -a
