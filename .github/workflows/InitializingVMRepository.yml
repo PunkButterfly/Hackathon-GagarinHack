@@ -15,15 +15,19 @@ jobs:
           passphrase: ${{ secrets.PUNKER_PASSPHRASE }}
           command_timeout: 30m
           script: |
-            mkdir ${{ github.event.repository.name }}/production
+            cd ~
+            mkdir ${{ github.event.repository.name }}
             
+            cd ~
+            mkdir ${{ github.event.repository.name }}/production
             cd ${{ github.event.repository.name }}/production
             git init
             git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main:main
             
+            cd ~
             mkdir ${{ github.event.repository.name }}/staging
             cd ${{ github.event.repository.name }}/staging
             git init
             git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main:staging
             git checkout staging
-            git push origin staging
+            git push staging
