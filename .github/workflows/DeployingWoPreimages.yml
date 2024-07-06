@@ -2,12 +2,8 @@ name: Deploying wo Preimages
 on: workflow_dispatch
 env:
   DOCKER_COMPOSE_NAME: hackathon-gagarin2024
-
-  BACKEND_CONTAINER_NAME: hackathon-gagarin2024-backend
-  BACKEND_PORT: 0002
-
-  FRONTEND_CONTAINER_NAME: hackathon-gagarin2024-frontend
-  FRONTEND_PORT: 0001
+  BACKEND_PORT: 1002
+  FRONTEND_PORT: 1001
 jobs:
   DeployingVM:
     name: Deploying to VM
@@ -27,10 +23,10 @@ jobs:
             git pull https://${{ secrets.PUNKER_GITHUB_USERNAME }}:${{ secrets.PUNKER_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git main
             
             rm .env
-            echo BACKEND_CONTAINER_NAME=${{ env.BACKEND_CONTAINER_NAME }} >> .env
+            echo BACKEND_CONTAINER_NAME=${{ DOCKER_COMPOSE_NAME }}-${{ env.BACKEND_CONTAINER_NAME }} >> .env
             echo BACKEND_PORT=${{ env.BACKEND_PORT }} >> .env
             
-            echo FRONTEND_CONTAINER_NAME=${{ env.FRONTEND_CONTAINER_NAME }} >> .env
+            echo FRONTEND_CONTAINER_NAME=${{ DOCKER_COMPOSE_NAME }}-${{ env.FRONTEND_CONTAINER_NAME }} >> .env
             echo FRONTEND_PORT=${{ env.FRONTEND_PORT }} >> .env
             
             sudo docker compose -p ${{ env.DOCKER_COMPOSE_NAME }} down            

@@ -4,7 +4,7 @@ import streamlit as st
 from datetime import datetime
 
 
-URL = f"http://backend:{os.getenv('BACKEND_PORT')}"
+URL = f"http://backend:{os.getenv('BACKEND_PORT')}/"
 # URL = "http://localhost:8502"
 
 st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
@@ -26,7 +26,7 @@ st.set_page_config(page_title="GAGARIN HACK 2024", layout="wide")
 st.title("Punk Butterfly - Gagarin Hack 2024", anchor=False)
 st.header("")
 
-uploaded_file = st.file_uploader('Скан документа', accept_multiple_files=False)
+uploaded_file = st.file_uploader('Скан автомобильных документов (ВУ, СТС, ПТС)', accept_multiple_files=False)
 
 response = None
 
